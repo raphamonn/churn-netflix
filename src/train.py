@@ -85,11 +85,24 @@ pipeline_pre.set_output(transform="pandas")
 X_train_transformed = pipeline_pre.fit_transform(X_train)
 
 # %%
-arvore = tree.DecisionTreeClassifier(random_state=42, max_depth=5)
+arvore = tree.DecisionTreeClassifier(random_state=42)
 arvore.fit(X_train_transformed, y_train)
 # %%
-plt.figure(dpi=800)
+plt.figure(dpi=800, figsize=(4, 4))
 tree.plot_tree(arvore, feature_names=X_train_transformed.columns,
                filled=True, rounded=True, class_names=['Dont Churned', 'churned'])
 plt.show()
+# %%
+# Verificando quais foram as features mais importantes
+feat_importances = (pd.Series(arvore.feature_importances_,
+                    index=X_train_transformed.columns)
+                    .sort_values(ascending=False)
+                    .reset_index()
+                    )
+# %%
+feat_importances['acum.'] = feat_importances[0].cumsum()
+feat_selection = feat_importances[feat_importances['acum.'] <= 0.95]
+feat_selection = feat_selection['index'].to_list()
+# %%
+
 # %%
